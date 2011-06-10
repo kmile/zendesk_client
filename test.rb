@@ -35,22 +35,4 @@ end
 
 @conn = Zendesk::Connection.new("support", "dclendenin@zendesk.com", Base64.decode64("ZXJhNTQ0NXRoYWQ=\n"))
 
-resp = zen.users
-puts resp.body
-resp = zen.organizations
-puts resp.body
-resp = zen.groups
-puts resp.body
-resp = zen.tickets
-puts resp.body
-resp = zen.attachments
-puts resp.body
-resp = zen.tags
-puts resp.body
-resp = zen.entries
-puts resp.body
-resp = zen.ticket_fields
-puts resp.body
-resp = zen.macros
-puts resp.body
 
