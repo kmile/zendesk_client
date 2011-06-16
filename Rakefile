@@ -1,5 +1,12 @@
+include Rake::DSL
+
 require "bundler"
 Bundler::GemHelper.install_tasks
+
+desc "Run tests"
+task :test do
+  system "ruby -Ilib -Itest -e 'ARGV.each { |f| load f }' test/zendesk/*"
+end
 
 task :default => :test
 
