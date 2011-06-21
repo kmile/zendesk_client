@@ -8,7 +8,7 @@ module Zendesk
     def authentication
       {
         :consumer_key => consumer_key,
-        :consumer_private => consumer_private,
+        :consumer_private => consumer_secret,
         :token => oauth_token,
         :token_secret => oauth_token_secret
       }

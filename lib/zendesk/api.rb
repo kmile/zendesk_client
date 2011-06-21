@@ -1,5 +1,6 @@
 require "zendesk/config"
 require "zendesk/connection"
+require "zendesk/request"
 require "zendesk/authentication"
 
 module Zendesk
@@ -19,6 +20,7 @@ module Zendesk
     end
 
     include Connection
+    include Request
     include Authentication
   end
 end

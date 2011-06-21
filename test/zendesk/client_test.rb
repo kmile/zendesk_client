@@ -1,5 +1,4 @@
 require "test_helper"
-require "zendesk"
 
 describe Zendesk::Client do
   it "should connect to the subdomain provided" do
