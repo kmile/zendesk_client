@@ -24,5 +24,9 @@ unless ENV["LIVE"]
     FakeWeb.register_uri(:get, "https://mondocam.zendesk.com/users/current.#{format}", :body => fixture("user_current.#{format}"))
     FakeWeb.register_uri(:get, "https://mondocam.zendesk.com/organizations/#{EXAMPLE_ID}/users.#{format}", :body => fixture("users_of_org.#{format}"))
     FakeWeb.register_uri(:get, "https://mondocam.zendesk.com/groups/#{EXAMPLE_ID}/users.#{format}", :body => fixture("users_of_group.#{format}"))
+    FakeWeb.register_uri(:get, "https://mondocam.zendesk.com/users.#{format}?group=#{EXAMPLE_ID}", :body => fixture("users_of_group.#{format}"))
+    FakeWeb.register_uri(:get, "https://mondocam.zendesk.com/users.#{format}?organization=#{EXAMPLE_ID}", :body => fixture("users_of_org.#{format}"))
+    FakeWeb.register_uri(:get, "https://mondocam.zendesk.com/users.#{format}?query=Dylan", :body => fixture("user_current.#{format}"))
+    FakeWeb.register_uri(:get, "https://mondocam.zendesk.com/users.#{format}?query=Dylan&role=2", :body => fixture("user_current.#{format}"))
   end
 end

@@ -13,6 +13,7 @@ describe Zendesk::Client::Users do
 
     it "should return a specific user" do
       assert_equal "Dylan Clendenin", @zendesk.users(EXAMPLE_ID)["name"]
+      assert_equal "Dylan Clendenin", @zendesk.users("Dylan")["name"]
     end
 
     it "should return the currently authenticated user" do
