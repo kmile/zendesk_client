@@ -2,14 +2,16 @@ require "test_helper"
 
 describe Zendesk::Client do
   it "should connect to the subdomain provided" do
-    client = Zendesk::Client.new("mondocam")
-    assert_equal "https://mondocam.zendesk.com", client.endpoint
-    assert_equal "mondocam", client.subdomain
+    client = Zendesk::Client.new do |config|
+      config.account SUBDOMAIN
+    end
+    assert_equal "https://#{SUBDOMAIN}.zendesk.com", client.endpoint
+    assert_equal SUBDOMAIN, client.subdomain
   end
 
   it "should accept email and password auth options" do
-    client = Zendesk::Client.new("mondocam", :email => "dude@biz.com", :password => "sekret")
-    assert_equal "dude@biz.com", client.email
-    assert_match "sekret", client.password
+    client = Zendesk::Client.new(:account => SUBDOMAIN, :email => EMAIL, :password => PASSWORD)
+    assert_equal EMAIL, client.email
+    assert_match PASSWORD, client.password
   end
 end

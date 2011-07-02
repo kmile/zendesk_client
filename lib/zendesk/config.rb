@@ -17,14 +17,16 @@ module Zendesk
       :oauth_token,
       :oauth_token_secret,
       :proxy,
-      :user_agent].freeze
+      :user_agent
+    ].freeze
 
     # An array of valid request/response formats
     #
     # @note Not all methods support the XML format.
     VALID_FORMATS = [
       :json,
-      :xml].freeze
+      :xml
+    ].freeze
 
     # The adapter that will be used to connect if none is set
     #
@@ -66,15 +68,10 @@ module Zendesk
       base.reset
     end
 
-    # Convenience method to allow configuration options to be set in a block
-    def configure
-      yield self
-    end
-
     # Create a hash of options and their values
     def options
       options = {}
-      VALID_OPTIONS_KEYS.each{|k| options[k] = send(k) }
+      VALID_OPTIONS_KEYS.each {|k| options[k] = send(k)}
       options
     end
 

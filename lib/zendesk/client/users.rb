@@ -2,19 +2,22 @@ module Zendesk
   class Client
     module Users
 
-      # All GET requests for users
+      # ## All GET requests for users
       #
-      # @zendesk.users(:all)                         - returns a list of all users
-      # @zendesk.users(:current)                     - returns the currently authenticated user
-      # @zendesk.users(123)                          - returns the user with id=123
-      # @zendesk.users("Bob")                        - returns users with name matching all or part of "Bob"
-      # @zendesk.users("Bob", :role => :end_user)    - returns users with name matching all or part of "Bob"
+      # ### V1
+      #
+      #    @zendesk.users                               - returns a list of all users
+      #    @zendesk.users(:current)                     - returns the currently authenticated user
+      #    @zendesk.users(123)                          - returns the user with id=123
+      #    @zendesk.users("Bob")                        - returns users with name matching all or part of "Bob"
+      #    @zendesk.users("Bob", :role => :end_user)    - returns users with name matching all or part of "Bob"
       #
       def users(*args)
         options = args.last.is_a?(Hash) ? args.pop : {}
-        selection = args.first || :all
+        selection = args.first
+
         case selection
-        when :all
+        when nil
           response = get("users", options)
         when :current
           response = get("users/current", options)

@@ -30,15 +30,21 @@ Usage
 Connection
 ----------
 
-    @zendesk = Zendesk::Connection.new("subdomain", "email@email.com", "password") # basic auth
-    @zendesk = Zendesk::Connection.new("subdomain", token, token_secret)           # Oauth
+    @zendesk = Zendesk::Client.new do |config|
+      config.account = "subdomain"
+      config.basic_auth "email@email.com", "password"
+    end
+
+    @zendesk = Zendesk::Client.new do |config|
+      config.account "subdomain"
+      config.oauth token, token_secret
+    end
 
 Users
 -----
 
     GET
     @zendesk.users                                                            # all users in account
-    @zendesk.users(:all)                                                      # all users in account
     @zendesk.users(:current)                                                  # currently authenticated user
     @zendesk.users("Bobo")                                                    # all users with name matching all or part of "Bobo"
     @zendesk.users(123)                                                       # return user=123

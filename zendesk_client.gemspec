@@ -7,7 +7,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "rake", "~> 0.8"
   gem.add_development_dependency "fakeweb", "~> 1.3.0"
   gem.add_development_dependency "yard", "~> 0.7"
-  gem.add_runtime_dependency "faraday", "~> 0.6.1"
+  gem.add_runtime_dependency "faraday", "~> 0.7.3"
   gem.add_runtime_dependency "faraday_middleware", "~> 0.6.3"
   gem.add_runtime_dependency "simple_oauth", "~> 0.1.5"
 

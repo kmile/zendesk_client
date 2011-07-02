@@ -14,12 +14,13 @@ module Zendesk
         :url => endpoint
       }
 
-      Faraday.new(options) do |builder|
+      conn = Faraday::Connection.new(options) do |builder|
         # As with Rack, order matters, so be mindful
 
         # TODO: builder.use Zendesk::Request::MultipartWithFile
+
 #         builder.use Faraday::Request::BasicAuth, authentication if authenticated?
-        builder.use Faraday::Request::OAuth, authentication if authenticated?
+#         builder.use Faraday::Request::OAuth, authentication if authenticated?
 
         builder.use Faraday::Request::Multipart
         builder.use Faraday::Request::UrlEncoded
@@ -35,11 +36,16 @@ module Zendesk
           end
         end
 
+        builder.use Faraday::Response::Mashify
+
 #         builder.use Faraday::Response::RaiseHttp5xx
 
         # finally
         builder.adapter(adapter)
       end
+
+      conn.basic_auth(email, password)
+      conn
     end
   end
 end
