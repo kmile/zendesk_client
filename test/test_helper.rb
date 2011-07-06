@@ -14,19 +14,25 @@ def fixture(file)
   File.new(fixture_path + "/" + file).readlines.to_s
 end
 
+#=======================
+#  register fakeweb URIs
+#=======================
 if ENV["LIVE"]  # tests can be run live, overwriting SUBDOMAIN and EMAIL:PASSWORD
   abort("Must run with SUBDOMAIN='subdomain'") unless ENV["SUBDOMAIN"]
   abort("Must run with BASIC_AUTH='email:password'") unless ENV["BASIC_AUTH"]
   SUBDOMAIN       = ENV["SUBDOMAIN"]
   EMAIL, PASSWORD = ENV["BASIC_AUTH"].split(":")
+
 else
+
   FakeWeb.allow_net_connect = false
 
   SUBDOMAIN       = "mondocam"
   EMAIL, PASSWORD = "fruity", "pebbles"
   prefix = %r| https://\w+:\w+@\w+\.zendesk\.com |x
 
-  Zendesk::Config::VALID_FORMATS.each do |format|
+  FORMATS = [:json] # Zendesk::Config::VALID_FORMATS
+  FORMATS.each do |format|
     # Users
     # ---------------------
     FakeWeb.register_uri(:get, %r| #{prefix}/users\.#{format}                     |x, :body => fixture("users.#{format}"))
