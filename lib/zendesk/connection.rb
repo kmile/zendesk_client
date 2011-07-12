@@ -15,17 +15,13 @@ module Zendesk
       }
 
       conn = Faraday::Connection.new(options) do |builder|
-        # As with Rack, order matters, so be mindful
+        # As with Rack, order matters. Be mindful.
 
         # TODO: builder.use Zendesk::Request::MultipartWithFile
-
-#         builder.use Faraday::Request::BasicAuth, authentication if authenticated?
-#         builder.use Faraday::Request::OAuth, authentication if authenticated?
-
+        # TODO: builder.use Faraday::Request::OAuth, authentication if authenticated?
         builder.use Faraday::Request::Multipart
         builder.use Faraday::Request::UrlEncoded
-
-#         builder.use Zendesk::Response::RaiseHttp4xx
+        # TODO: builder.use Zendesk::Response::RaiseHttp4xx
 
         unless raw
           case format.to_s.downcase
@@ -34,17 +30,16 @@ module Zendesk
           when "xml"
             builder.use Faraday::Response::ParseXml
           end
+          builder.use Faraday::Response::Mashify
         end
 
-        builder.use Faraday::Response::Mashify
-
-#         builder.use Faraday::Response::RaiseHttp5xx
+        # TODO: builder.use Faraday::Response::RaiseHttp5xx
 
         # finally
         builder.adapter(adapter)
       end
 
-      conn.basic_auth(email, password)
+      conn.basic_auth(email, password) # TODO: only do this if configured with basic_auth
       conn
     end
   end

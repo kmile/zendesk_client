@@ -6,7 +6,7 @@ require "zendesk/authentication"
 module Zendesk
   class API
     attr_accessor *Config::VALID_OPTIONS_KEYS
-    attr_accessor :endpoint, :subdomain, :email, :password # dumb, will fix later
+    attr_accessor :endpoint, :email, :password # dumb, will fix later
 
     # Creates a new Client
     def initialize(options={}, &block)
@@ -20,8 +20,8 @@ module Zendesk
 
     # Both of these methods are very naive
     # just sketching it out for now
-    def account(name)
-      @subdomain, @endpoint = name, "https://#{name}.zendesk.com"
+    def account(uri)
+      @endpoint = uri
     end
 
     def basic_auth(email, password)

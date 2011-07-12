@@ -9,7 +9,7 @@ module Zendesk
       :adapter,
       :consumer_key,
       :consumer_secret,
-      :subdomain,
+      :endpoint,
       :email,
       :password,
       :format,
@@ -31,7 +31,7 @@ module Zendesk
     # The adapter that will be used to connect if none is set
     #
     # @note The default faraday adapter is Net::HTTP.
-    DEFAULT_ADAPTER = Faraday.default_adapter
+    DEFAULT_ADAPTER = :patron # Faraday.default_adapter
 
     DEFAULT_SUBDOMAIN = nil
 
@@ -78,7 +78,7 @@ module Zendesk
     # Reset all configuration options to defaults
     def reset
       self.adapter            = DEFAULT_ADAPTER
-      self.subdomain          = DEFAULT_SUBDOMAIN
+      self.endpoint           = nil
       self.email              = nil
       self.password           = nil
       self.consumer_key       = DEFAULT_CONSUMER_KEY

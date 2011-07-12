@@ -6,7 +6,8 @@ module Zendesk
       #
       # ### V1
       #
-      #    @zendesk.users                               - returns a list of all users
+      #    @zendesk.users                               - returns a list of users (limit 15)
+      #    @zendesk.users(:page => 2)                   - returns a list of users (next 15)
       #    @zendesk.users(:current)                     - returns the currently authenticated user
       #    @zendesk.users(123)                          - returns the user with id=123
       #    @zendesk.users("Bob")                        - returns users with name matching all or part of "Bob"
@@ -26,19 +27,41 @@ module Zendesk
         when String
           options[:query] = selection
           response = get("users", options)
-        when Hash
-          group = selection.delete(:group)
-          organization = selection.delete(:organization)
-
-          abort "only one or the other, @zendesk.users(:group => 123) or @zendesk.users(:organization => 123)" if group && organization
-
-          if group
-            response = get("groups/#{group}/users", options)
-          elsif organization
-            response = get("organizations/#{organization}/users", options)
-          end
         end
 
+        format.to_s.downcase == "xml" ? response["user"] : response
+      end
+
+      # ## Update a user
+      #
+      # ### V1
+      #
+      #    @zendesk.update_user(123, {:name => "Wu Tang"})
+      #
+      def update_user(id, data, options={})
+        response = put("users/#{id}", data, options)
+        format.to_s.downcase == "xml" ? response["user"] : response
+      end
+
+      # ## Create a user
+      #
+      # ### V1
+      #
+      #    @zendesk.create_user({:name => "Mr. Miyagi"})
+      #
+      def create_user(user, options={})
+        response = post("users", options.merge(:user => user))
+        format.to_s.downcase == "xml" ? response["user"] : response
+      end
+
+      # ## Delete a user
+      #
+      # ### V1
+      #
+      #    @zendesk.delete_user(123)
+      #
+      def delete_user(id, options={})
+        response = delete("users/#{id}", options)
         format.to_s.downcase == "xml" ? response["user"] : response
       end
     end

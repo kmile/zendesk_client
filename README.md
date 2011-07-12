@@ -31,7 +31,7 @@ Connection
 ----------
 
     @zendesk = Zendesk::Client.new do |config|
-      config.account = "subdomain"
+      config.account "subdomain"
       config.basic_auth "email@email.com", "password"
     end
 
