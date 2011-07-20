@@ -1,29 +1,6 @@
 Zendesk API Ruby Client
 =======================
 
-Based on my research into Zendesk API client libraries, there is no good reference library
-in existence today. We can communicate that we care about our API and helping developers
-create new Zendesk apps by writing and maintaining a definitive reference library. Our
-developer community could be much stronger than it is currently, there seem to be many eager
-people out there trying to write renegade Zendesk clients and integrations without much
-guidance or support from us. The number of downloads for even some of the badly written
-libraries proves the desperation. If we took leadership in this area of owning our API
-experience we will win; our reputation with developers will greatly improve and we will
-learn how to improve the API along the lines of real life usage.
-
-Why write this ourselves? It shows leadership and ownership on our part that sends the right
-message to our customers (existing or potential). Of the dozens of client libraries in existence
-none of them are complete, e.g., many support XML only, many are written with a very narrow use
-case in mind, none of them completely support the full Zendesk API. We solve this problem by writing
-the spec and holding other client libraries to that standard.
-
-Where to start? We are already working on the API from the service side of things, we can start
-by writing a complete Ruby library that we can refer implementers to. This can be the library we
-ourselves use to test the API. Writing the client ourselves will help us think about the API as
-a consumer of it would and help us think about it more concretely and objectively.
-
-Below it the proposed client code.
-
 Usage
 =====
 
@@ -31,45 +8,68 @@ Connection
 ----------
 
     @zendesk = Zendesk::Client.new do |config|
-      config.account "subdomain"
+      config.account "https://coolcompany.zendesk.com"
       config.basic_auth "email@email.com", "password"
     end
 
+    # API v2
     @zendesk = Zendesk::Client.new do |config|
-      config.account "subdomain"
+      config.account "https://support.coolcompany.com"
       config.oauth token, token_secret
     end
+
+
+Collections
+-----------
+
+Collections of resources are fetched as lazily as possible. For example `@zendesk.users` does not hit the API until it is iterated over
+(calling `each`) or until an item is asked for (e.g., `@zendesk.users[0]`).
+
+This laziness allows for a cool client API. Since none of the collection methods (such as `@zendesk.tickets`) make HTTP requests but
+instead return self, we can chain methods in cool ways like `@zendesk.tickets.create({ ... data ... })` and `@zendesk.tickets(123).update({})`.
+
+GET requests are not made until the last possible moment. Calling `fetch` will return the HTTP response (first looking in the cache). If you
+want to avoid the cached result you can call `fetch(true)` which will force the cache to get the latest HTTP response.
+
+PUT, POST and DELETE requests are issued immediately and respond immediately.
 
 Users
 -----
 
     GET
-    @zendesk.users                                                            # all users in account
-    @zendesk.users(:current)                                                  # currently authenticated user
-    @zendesk.users("Bobo")                                                    # all users with name matching all or part of "Bobo"
-    @zendesk.users(123)                                                       # return user=123
-    @zendesk.users("Bobo", :role => :admin)                                   # all users with name matching all or part of "Bobo" who are admins
-    @zendesk.users(:role => :agent)                                           # all users who are agents
-    @zendesk.users(:role => "agent")                                          # all users who are agents
-    @zendesk.users(:group => 123)                                             # all users who are members of group id=123
-    @zendesk.users(:organization => 123)                                      # all users who are members of group id=123
-    @zendesk.user_identities(123)                                             # all identities in account for a given user
+    @zendesk.users                            # all users in account
+    @zendesk.users.per_page(100)              # all users in account (v2 should accept `?per_page=NUMBER`)
+    @zendesk.users.page(2)                    # all users in account (v1 currently accepts `?page=NUMBER`)
+    @zendesk.users.next_page                  # all users in account (v1 currently accepts `?page=NUMBER`)
+    @zendesk.users(:current)                  # currently authenticated user
+    @zendesk.users("Bobo")                    # all users with name matching all or part of "Bobo"
+    @zendesk.users(123)                       # return user=123
+    @zendesk.users("Bobo", :role => :admin)   # all users with name matching all or part of "Bobo" who are admins
+    @zendesk.users(:role => :agent)           # all users who are agents
+    @zendesk.users(:role => "agent")          # all users who are agents
+    @zendesk.users(:group => 123)             # all users who are members of group id=123
+    @zendesk.users(:organization => 123)      # all users who are members of group id=123
+    @zendesk.user(123).identities             # all identities in account for a given user
 
     POST
-    @zendesk.user_create({:name => "Bobo Yodawg",                             # creates new user
-                          :email => "bc@email.com",
-                          :remote_photo_url => "http://d.com/image.png",
-                          :role => :agent})
+    @zendesk.users.create({:name => "Bobo Yodawg",
+                           :email => "bc@email.com",
+                           :remote_photo_url => "http://d.com/image.png",
+                           :role => :agent})
 
     PUT
-    @zendesk.user_update(123, {:remote_photo_url => "yo@dawg.com"})           # edit user=123 (data passed in overrides existing)
+    @zendesk.users(123).update({:remote_photo_url => "yo@dawg.com"})          # edit user=123 (data passed in overrides existing)
 
-    @zendesk.user_identity(123, {:email => "yo@dawg.com"})                    # add email address to user=123
-    @zendesk.user_identity(123, {:email => "yo@dawg.com", :primary => true})  # add email address to user=123
-    @zendesk.user_identity(123, {:twitter => "yodawg"})                       # add twitter handle to user=123
+    @zendesk.users(123).update do |user|
+      user[:remote_photo_url] = "yo@dawg.com"
+    end
+
+    @zendesk.users(123).identities.update({:email => "yo@dawg.com"})                    # add email address to user=123
+    @zendesk.users(123).identities.update({:email => "yo@dawg.com", :primary => true})  # add email address to user=123
+    @zendesk.users(123).identities.update({:twitter => "yodawg"})                       # add twitter handle to user=123
 
     DELETE
-    @zendesk.user_delete(123)                                                 # deletes user=123
+    @zendesk.users(123).delete                                                # deletes user=123
 
 Tickets
 -------

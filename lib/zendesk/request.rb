@@ -19,8 +19,9 @@ module Zendesk
 
     private
 
-    def request(method, path, options, raw=false)
-      response = connection(raw).send(method) do |request|
+    def request(method, path, options)
+      # `connection` defined in lib/zendesk/connection.rb
+      response = connection.send(method) do |request|
         case method
         when :get, :delete
           request.url(formatted_path(path), options)
@@ -29,7 +30,8 @@ module Zendesk
           request.body = options unless options.empty?
         end
       end
-      raw ? response : response.body
+
+      response.body
     end
 
     def formatted_path(path)

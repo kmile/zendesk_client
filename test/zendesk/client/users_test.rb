@@ -6,46 +6,50 @@ describe Zendesk::Client::Users do
       config.account ENDPOINT
       config.basic_auth EMAIL, PASSWORD
     end
+
+    @user_id = ENV["LIVE"] ? @zendesk.users[-1]["id"] : 123
   end
 
   describe "GET" do
     it "all users" do
-      users = @zendesk.users
-      @user_id = users[0]["id"]
+      users = @zendesk.users.fetch
       assert users.size > 0
-      users.each do |u|
-        assert u["name"]
-      end
     end
 
     it "single user by id" do
-      user = @zendesk.users(@user_id)
-      assert user["name"]
+      user = @zendesk.users(@user_id).fetch
+      assert user.name
     end
 
     it "currently authenticated user" do
-      user = @zendesk.users(:current)
-      assert @zendesk.users(:current)["name"]
+      user = @zendesk.users(:current).fetch
+      assert user.name
+    end
+
+    it "all users by query" do
+      users = @zendesk.users("foo").fetch
+      assert users.size > 0
+      users.each do |u|
+        assert u.name
+      end
     end
   end
 
-#   describe "PUT" do
-#     FORMATS.each do |format|
-#       it "should update user with a hash" do
-#         data = {:email => "blubber@corporation.com"}
-#         @zendesk.update_user(123)
-#         user = @zendesk.users(123)
-#         assert user["email"] == "blubber@corporation.com"
-#       end
-
-#       it "should update user with a block" do
-#         @zendesk.update_user(123) do |u|
-#           u["email"] = "blubber@corporation.com"
-#         end
-#         user = @zendesk.users(123)
-#         assert user["email"] == "blubber@corporation.com"
-#       end
+  describe "PUT" do
+#     it "should update user with a hash" do
+#       data = {:email => "blubber@corporation.com"}
+#       @zendesk.update_user(@user_id, data)
+#       user = @zendesk.users(@user_id)
+#       assert user["email"] == "blubber@corporation.com"
 #     end
-#   end
+
+    it "should update user with a block" do
+      @zendesk.users(@user_id).update do |u|
+        u[:email] = "blubber@corporation.com"
+      end
+      user = @zendesk.users(@user_id).fetch
+      assert_equal "blubber@corporation.com", user.email
+    end
+  end
 
 end

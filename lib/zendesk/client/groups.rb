@@ -10,14 +10,15 @@ module Zendesk
       #    @zendesk.groups(123)
       #
       def groups(*args)
-        options = args.last.is_a?(Hash) ? args.pop : {}
+        clear_cache
+        @query = args.last.is_a?(Hash) ? args.pop : {}
         selection = args.first
 
         case selection
         when nil
-          response = get("groups", options)
+          @query[:path] = "groups"
         when Integer
-          response = get("groups/#{selection}", options)
+          @query[:path] = "groups/#{selection}"
         end
       end
 
@@ -27,8 +28,11 @@ module Zendesk
       #
       #    @zendesk.update_group(123, {:name => "Sort of Cool Guys"})
       #
-      def update_group(id, data, options={})
-        put("groups/#{id}", data, options)
+      def update(options={})
+        data = {}
+        yield data if block_given?
+        response = put(@query.delete(:path), @query.merge({:group => data}))
+        format.to_s.downcase == "xml" ? response["group"] : response
       end
 
       # ## GET all groups or a single group by id
@@ -37,8 +41,11 @@ module Zendesk
       #
       #    @zendesk.create_group({:name => "Cool Guys", :agents => [123, 456, 789]})
       #
-      def create_group(group, options={})
-        post("groups", options.merge(:group => group))
+      def create(options={})
+        data = {}
+        yield data if block_given?
+        post("groups", options.merge(:group => data))
+        format.to_s.downcase == "xml" ? response["group"] : response
       end
 
       # ## Delete group
@@ -47,8 +54,9 @@ module Zendesk
       #
       #    @zendesk.delete_group(123)
       #
-      def delete_group(id, options={})
-        delete("groups/#{id}", options)
+      def delete(options={})
+        response = delete(@query[:path], options)
+        format.to_s.downcase == "xml" ? response["group"] : response
       end
     end
   end

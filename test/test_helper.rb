@@ -15,6 +15,8 @@ def fixture(file)
   File.new(fixture_path + "/" + file).readlines.to_s
 end
 
+FORMATS = Zendesk::Config::VALID_FORMATS
+
 if ENV["LIVE"] #################################################################
 
   file = File.expand_path(File.join(File.dirname(__FILE__), "config.yml"))
@@ -25,12 +27,12 @@ if ENV["LIVE"] #################################################################
 
 else ###########################################################################
 
-  ENDPOINT        = "https://mondocam.zendesk.com"
-  EMAIL, PASSWORD = "fruity", "pebbles"
-  prefix = %r| https://fruity:pebbles@mondocam.zendesk\.com |x
+#   ENDPOINT        = "https://mondocam.zendesk.com"
+#   EMAIL, PASSWORD = "fruity", "pebbles"
+  prefix = "https://fruity:pebbles@mondocam.zendesk.com"
 
-  FORMATS = Zendesk::Config::VALID_FORMATS
   FORMATS.each do |format|
+
     # Users
     # ---------------------
     stub_request(:get, %r| #{prefix}/users\.#{format}                     |x).to_return(:body => fixture("users.#{format}"))
@@ -43,6 +45,7 @@ else ###########################################################################
     stub_request(:get, %r| #{prefix}/users\.#{format}\\?group=\d+         |x).to_return(:body => fixture("users_of_group.#{format}"))
     stub_request(:get, %r| #{prefix}/users\.#{format}\\?organization=\d+  |x).to_return(:body => fixture("users_of_org.#{format}"))
 
+    stub_request(:put, %r| #{prefix}/users/\d+\.#{format}                 |x).to_return(:status => 200)
     # Etc
     # ---------------------
 

@@ -1,3 +1,4 @@
+require "faraday"
 require "faraday_middleware"
 require "zendesk/response/raise_http_4xx"
 
@@ -6,40 +7,38 @@ module Zendesk
     private
 
     # This method sets up HTTP data for all requests
-    def connection(raw=false)
+    def connection(format=:json)
       options = {
-        :headers => {"Accept" => "application/#{format}", "User-Agent" => user_agent},
-        :proxy => proxy,
+        :headers => {
+          :accept => "application/#{@client.format}",
+          :user_agent => @client.user_agent
+        },
+        :proxy => @client.proxy,
         :ssl => {:verify => false},
-        :url => endpoint
+        :url => @client.endpoint
       }
 
       conn = Faraday::Connection.new(options) do |builder|
         # As with Rack, order matters. Be mindful.
-
         # TODO: builder.use Zendesk::Request::MultipartWithFile
         # TODO: builder.use Faraday::Request::OAuth, authentication if authenticated?
         builder.use Faraday::Request::Multipart
         builder.use Faraday::Request::UrlEncoded
         # TODO: builder.use Zendesk::Response::RaiseHttp4xx
-
-        unless raw
-          case format.to_s.downcase
-          when "json"
-            builder.use Faraday::Response::ParseJson
-          when "xml"
-            builder.use Faraday::Response::ParseXml
-          end
+        case format.to_sym
+        when :json
           builder.use Faraday::Response::Mashify
+          builder.use Faraday::Response::ParseJson
+        when :xml
+          builder.use Faraday::Response::Mashify
+          builder.use Faraday::Response::ParseXml
         end
-
         # TODO: builder.use Faraday::Response::RaiseHttp5xx
-
         # finally
-        builder.adapter(adapter)
+        builder.adapter(@client.adapter)
       end
 
-      conn.basic_auth(email, password) # TODO: only do this if configured with basic_auth
+      conn.basic_auth(@client.email, @client.password) # TODO: only do this if configured with basic_auth
       conn
     end
   end

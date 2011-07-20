@@ -1,6 +1,3 @@
-require "faraday"
-require "zendesk/version"
-
 module Zendesk
   # Defines constants and methods related to configuration
   module Config
@@ -20,6 +17,8 @@ module Zendesk
       :user_agent
     ].freeze
 
+    attr_accessor *VALID_OPTIONS_KEYS
+
     # An array of valid request/response formats
     #
     # @note Not all methods support the XML format.
@@ -31,9 +30,7 @@ module Zendesk
     # The adapter that will be used to connect if none is set
     #
     # @note The default faraday adapter is Net::HTTP.
-    DEFAULT_ADAPTER = :patron # Faraday.default_adapter
-
-    DEFAULT_SUBDOMAIN = nil
+    DEFAULT_ADAPTER = :patron
 
     # By default, don't set an application key
     DEFAULT_CONSUMER_KEY = nil
@@ -59,9 +56,6 @@ module Zendesk
     DEFAULT_USER_AGENT = "Zendesk Ruby Client #{Zendesk::VERSION}".freeze
 
     DEFAULT_GATEWAY = nil
-
-    # @private
-    attr_accessor *VALID_OPTIONS_KEYS
 
     # When this module is extended, set all configuration options to their default values
     def self.extended(base)

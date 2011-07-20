@@ -7,63 +7,85 @@ module Zendesk
       # ### V1
       #
       #    @zendesk.users                               - returns a list of users (limit 15)
-      #    @zendesk.users(:page => 2)                   - returns a list of users (next 15)
+      #    @zendesk.users.per_page(100)                 - returns a list of users (limit 15)
       #    @zendesk.users(:current)                     - returns the currently authenticated user
       #    @zendesk.users(123)                          - returns the user with id=123
       #    @zendesk.users("Bob")                        - returns users with name matching all or part of "Bob"
       #    @zendesk.users("Bob", :role => :end_user)    - returns users with name matching all or part of "Bob"
       #
       def users(*args)
-        options = args.last.is_a?(Hash) ? args.pop : {}
-        selection = args.first
+        # passes the instance of the client into the collection
+        # so that all the client configuration is visible for
+        # making the actual HTTP requests
+        UserCollection.new(self, *args)
+      end
+      # cuz "users" are people: <3 your helpdesk.
+      alias people users
 
-        case selection
+    end
+
+    class UserCollection < Collection
+
+      def initialize(client, *args)
+        clear_cache
+        @client = client
+        @query  = args.last.is_a?(Hash) ? args.pop : {}
+
+        case selection = args.shift
         when nil
-          response = get("users", options)
+          @query[:path] = "users"
         when :current
-          response = get("users/current", options)
+          @query[:path] = "users/current"
         when Integer
-          response = get("users/#{selection}", options)
+          @query[:path] = "users/#{selection}"
         when String
-          options[:query] = selection
-          response = get("users", options)
+          @query[:path]  = "users"
+          @query[:query] = selection
         end
-
-        format.to_s.downcase == "xml" ? response["user"] : response
       end
 
       # ## Update a user
       #
       # ### V1
       #
-      #    @zendesk.update_user(123, {:name => "Wu Tang"})
+      #    @zendesk.users(123).update({:name => "Wu Tang"})
       #
-      def update_user(id, data, options={})
-        response = put("users/#{id}", data, options)
-        format.to_s.downcase == "xml" ? response["user"] : response
+      #    # optional block syntax
+      #    @zendesk.users(123).update do |user|
+      #      user[:email] = "hongkong@phooey.com"
+      #    end
+      #
+      def update(data={})
+        yield data if block_given?
+        super(@query[:path], @query.merge({:user => data}))
       end
 
       # ## Create a user
       #
       # ### V1
       #
-      #    @zendesk.create_user({:name => "Mr. Miyagi"})
+      #    @zendesk.users.create({:name => "Mr. Miyagi"})
       #
-      def create_user(user, options={})
-        response = post("users", options.merge(:user => user))
-        format.to_s.downcase == "xml" ? response["user"] : response
+      #    # optional block syntax
+      #    @zendesk.users.create do |user|
+      #      user[:name] = "Mr. Miyagi"
+      #    end
+      #
+      def create(data={})
+        yield data if block_given?
+        super(@query[:path], @query.merge(:user => data))
       end
 
       # ## Delete a user
       #
       # ### V1
       #
-      #    @zendesk.delete_user(123)
+      #    @zendesk.users(123).delete
       #
-      def delete_user(id, options={})
-        response = delete("users/#{id}", options)
-        format.to_s.downcase == "xml" ? response["user"] : response
+      def delete(options={})
+        super(@query[:path], options)
       end
+
     end
   end
 end

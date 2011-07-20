@@ -10,6 +10,11 @@ end
 
 task :default => :test
 
+desc "Run irb with zendesk client lib loaded"
+task :console do
+  sh "irb -I lib -r ./lib/zendesk.rb"
+end
+
 namespace :doc do
   require "yard"
   YARD::Rake::YardocTask.new do |t|

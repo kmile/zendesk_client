@@ -1,15 +1,9 @@
-require "zendesk/config"
-require "zendesk/connection"
-require "zendesk/request"
-require "zendesk/authentication"
-
 module Zendesk
-  class API
+  class API # inherited by Client
     attr_accessor *Config::VALID_OPTIONS_KEYS
-    attr_accessor :endpoint, :email, :password # dumb, will fix later
 
-    # Creates a new Client
-    def initialize(options={}, &block)
+    # Zendesk::Client.new
+    def initialize(options={})
       options = Zendesk.options.merge(options)
       Config::VALID_OPTIONS_KEYS.each do |key|
         send("#{key}=", options[key])
@@ -28,8 +22,8 @@ module Zendesk
       @email, @password = email, password
     end
 
-    include Connection
-    include Request
-    include Authentication
+#     def inspect
+#       "#<#{self.class} @endpoint=#{endpoint} @email=#{email} @password=****** @proxy=#{proxy} @cache=#{@cache}>"
+#     end
   end
 end
