@@ -1,4 +1,20 @@
 module Zendesk
+  class Error < StandardError
+    attr_reader :http_headers
+
+    def initialize(message, headers)
+      @http_headers = Hash[headers]
+      super message
+    end
+  end
+
+  class BadRequest    < Error; end
+  class Unauthorized  < Error; end
+  class Forbidden     < Error; end
+  class NotFound      < Error; end
+  class NotAcceptable < Error; end
+  class Chill         < Error; end
+
   module Response
     class RaiseHttp4xx < Faraday::Response::Middleware
       def on_complete(env)

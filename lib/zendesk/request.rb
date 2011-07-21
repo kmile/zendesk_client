@@ -5,36 +5,38 @@ module Zendesk
       request(:get, path, options)
     end
 
-    def post(path, options={})
+    def do_post(path, options={})
       request(:post, path, options)
     end
 
-    def put(path, options={})
+    def do_put(path, options={})
       request(:put, path, options)
     end
 
-    def delete(path, options={})
+    def do_delete(path, options={})
       request(:delete, path, options)
     end
 
     private
 
-    def request(method, path, options)
+    def request(method, path, options, format=:json)
       # `connection` defined in lib/zendesk/connection.rb
-      response = connection.send(method) do |request|
+      response = connection(format).send(method) do |request|
         case method
         when :get, :delete
-          request.url(formatted_path(path), options)
+          puts "#{method.to_s.upcase} #{formatted_path(path, format)} #{options.inspect}"
+          request.url(formatted_path(path, format), options)
         when :post, :put
-          request.path = formatted_path(path)
+          request.path = formatted_path(path, format)
           request.body = options unless options.empty?
+          puts "#{method.to_s.upcase} #{request.path} #{request.body.inspect}"
         end
       end
 
       response.body
     end
 
-    def formatted_path(path)
+    def formatted_path(path, format)
       [path, format].compact.join(".")
     end
   end

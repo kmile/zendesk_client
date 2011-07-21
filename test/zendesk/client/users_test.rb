@@ -35,20 +35,37 @@ describe Zendesk::Client::Users do
     end
   end
 
+  describe "POST" do
+    it "should create a user with a hash" do
+      data = {:name => "Wu Tang"}
+      user = @zendesk.users.create(data)
+      assert_equal "Wu Tang", @zendesk.users(user.id).fetch.name
+      @zendesk.users(user.id).delete
+    end
+
+    it "should create a user with a block" do
+      user = @zendesk.users.create do |user|
+        user["name"] = "Wu Tang"
+      end
+      assert_equal "Wu Tang", @zendesk.users(user.id).fetch.name
+      @zendesk.users(user.id).delete
+    end
+  end
+
   describe "PUT" do
-#     it "should update user with a hash" do
-#       data = {:email => "blubber@corporation.com"}
-#       @zendesk.update_user(@user_id, data)
-#       user = @zendesk.users(@user_id)
-#       assert user["email"] == "blubber@corporation.com"
-#     end
+    it "should update user with a hash" do
+      data = {:phone => "415-331-3333"}
+      @zendesk.users(@user_id).update(data)
+      user = @zendesk.users(@user_id).fetch
+      assert_equal "415-331-3333", user.phone
+    end
 
     it "should update user with a block" do
       @zendesk.users(@user_id).update do |u|
-        u[:email] = "blubber@corporation.com"
+        u[:phone] = "415-222-2222"
       end
       user = @zendesk.users(@user_id).fetch
-      assert_equal "blubber@corporation.com", user.email
+      assert_equal "415-222-2222", user.phone
     end
   end
 

@@ -57,7 +57,8 @@ module Zendesk
       #
       def update(data={})
         yield data if block_given?
-        super(@query[:path], @query.merge({:user => data}))
+        path = @query.delete(:path)
+        do_put(path, @query.merge({:user => data}))
       end
 
       # ## Create a user
@@ -73,7 +74,8 @@ module Zendesk
       #
       def create(data={})
         yield data if block_given?
-        super(@query[:path], @query.merge(:user => data))
+        path = @query.delete(:path)
+        do_post(path, @query.merge(:user => data))
       end
 
       # ## Delete a user
@@ -83,7 +85,8 @@ module Zendesk
       #    @zendesk.users(123).delete
       #
       def delete(options={})
-        super(@query[:path], options)
+        path = @query.delete(:path)
+        do_delete(path, options)
       end
 
     end

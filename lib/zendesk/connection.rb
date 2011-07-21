@@ -1,5 +1,6 @@
 require "faraday"
 require "faraday_middleware"
+require "zendesk/response/logger"
 require "zendesk/response/raise_http_4xx"
 
 module Zendesk
@@ -7,7 +8,7 @@ module Zendesk
     private
 
     # This method sets up HTTP data for all requests
-    def connection(format=:json)
+    def connection(format)
       options = {
         :headers => {
           :accept => "application/#{@client.format}",
@@ -33,6 +34,7 @@ module Zendesk
           builder.use Faraday::Response::Mashify
           builder.use Faraday::Response::ParseXml
         end
+        builder.use Zendesk::Response::Logger
         # TODO: builder.use Faraday::Response::RaiseHttp5xx
         # finally
         builder.adapter(@client.adapter)
