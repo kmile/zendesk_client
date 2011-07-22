@@ -19,6 +19,7 @@ FORMATS = Zendesk::Config::VALID_FORMATS
 
 if ENV["LIVE"] #################################################################
 
+  # stick credentials in test/config.yml
   file = File.expand_path(File.join(File.dirname(__FILE__), "config.yml"))
   config = YAML.load(File.open(file))
   ENDPOINT = config["uri"]
@@ -27,9 +28,9 @@ if ENV["LIVE"] #################################################################
 
 else ###########################################################################
 
-#   ENDPOINT        = "https://mondocam.zendesk.com"
-#   EMAIL, PASSWORD = "fruity", "pebbles"
-  prefix = "https://fruity:pebbles@mondocam.zendesk.com"
+  ENDPOINT        = "https://mondocam.zendesk.com"
+  EMAIL, PASSWORD = "fruity@pebbles.com", "sekret"
+  prefix = "https://mondocam.zendesk.com"
 
   FORMATS.each do |format|
 

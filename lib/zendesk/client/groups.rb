@@ -1,7 +1,6 @@
 module Zendesk
   class Client
     module Groups
-
       # ## GET all groups or a single group by id
       #
       # ### V1
@@ -10,11 +9,18 @@ module Zendesk
       #    @zendesk.groups(123)
       #
       def groups(*args)
-        clear_cache
-        @query = args.last.is_a?(Hash) ? args.pop : {}
-        selection = args.first
+        GroupsCollection.new(self, *args)
+      end
+    end
 
-        case selection
+    class GroupsCollection < Collection
+
+      def initialize(client, *args)
+        clear_cache
+        @client = client
+        @query  = args.last.is_a?(Hash) ? args.pop : {}
+
+        case selection = args.shift
         when nil
           @query[:path] = "groups"
         when Integer
@@ -22,41 +28,48 @@ module Zendesk
         end
       end
 
-      # ## GET all groups or a single group by id
+      # ## Update a group by id
       #
       # ### V1
       #
-      #    @zendesk.update_group(123, {:name => "Sort of Cool Guys"})
+      #    @zendesk.groups(123).update({:name => "Sort of Cool Guys"})
       #
-      def update(options={})
-        data = {}
+      #    # optional block syntax
+      #    @zendesk.groups(123).update do |group|
+      #      group["name"] = "Just People"
+      #      group["description"] = "That's all"
+      #    end
+      #
+      def update(data={})
         yield data if block_given?
-        response = put(@query.delete(:path), @query.merge({:group => data}))
-        format.to_s.downcase == "xml" ? response["group"] : response
+        do_put(@query.delete(:path), @query.merge(:group => data))
       end
 
-      # ## GET all groups or a single group by id
+      # ## Create a group
       #
       # ### V1
       #
-      #    @zendesk.create_group({:name => "Cool Guys", :agents => [123, 456, 789]})
+      #    @zendesk.groups.create({:name => "Cool Guys", :agents => [123, 456, 789]})
       #
-      def create(options={})
-        data = {}
+      #    # optional block syntax
+      #    @zendesk.groups.create do |group|
+      #      group["name"] = "Cool Guys"
+      #      group["description"] = "wish you could be this cool"
+      #    end
+      #
+      def create(data={})
         yield data if block_given?
-        post("groups", options.merge(:group => data))
-        format.to_s.downcase == "xml" ? response["group"] : response
+        do_post(@query.delete(:path), @query.merge(:group => data))
       end
 
       # ## Delete group
       #
       # ### V1
       #
-      #    @zendesk.delete_group(123)
+      #    @zendesk.groups(123).delete
       #
       def delete(options={})
-        response = delete(@query[:path], options)
-        format.to_s.downcase == "xml" ? response["group"] : response
+        do_delete(@query.delete(:path), options)
       end
     end
   end

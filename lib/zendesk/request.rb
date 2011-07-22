@@ -24,12 +24,10 @@ module Zendesk
       response = connection(format).send(method) do |request|
         case method
         when :get, :delete
-          puts "#{method.to_s.upcase} #{formatted_path(path, format)} #{options.inspect}"
           request.url(formatted_path(path, format), options)
         when :post, :put
           request.path = formatted_path(path, format)
           request.body = options unless options.empty?
-          puts "#{method.to_s.upcase} #{request.path} #{request.body.inspect}"
         end
       end
 

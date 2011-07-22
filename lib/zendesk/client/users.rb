@@ -1,7 +1,6 @@
 module Zendesk
   class Client
     module Users
-
       # ## All GET requests for users
       #
       # ### V1
@@ -17,14 +16,13 @@ module Zendesk
         # passes the instance of the client into the collection
         # so that all the client configuration is visible for
         # making the actual HTTP requests
-        UserCollection.new(self, *args)
+        UsersCollection.new(self, *args)
       end
       # cuz "users" are people: <3 your helpdesk.
       alias people users
-
     end
 
-    class UserCollection < Collection
+    class UsersCollection < Collection
 
       def initialize(client, *args)
         clear_cache
@@ -57,8 +55,7 @@ module Zendesk
       #
       def update(data={})
         yield data if block_given?
-        path = @query.delete(:path)
-        do_put(path, @query.merge({:user => data}))
+        do_put(@query.delete(:path), @query.merge(:user => data))
       end
 
       # ## Create a user
@@ -74,8 +71,7 @@ module Zendesk
       #
       def create(data={})
         yield data if block_given?
-        path = @query.delete(:path)
-        do_post(path, @query.merge(:user => data))
+        do_post(@query.delete(:path), @query.merge(:user => data))
       end
 
       # ## Delete a user
@@ -85,8 +81,7 @@ module Zendesk
       #    @zendesk.users(123).delete
       #
       def delete(options={})
-        path = @query.delete(:path)
-        do_delete(path, options)
+        do_delete(@query.delete(:path), options)
       end
 
     end
