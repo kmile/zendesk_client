@@ -36,8 +36,8 @@ module Zendesk
       #
       #    # optional block syntax
       #    @zendesk.groups(123).update do |group|
-      #      group["name"] = "Just People"
-      #      group["description"] = "That's all"
+      #      group[:name] = "Just People"
+      #      group[:description] = "That's all"
       #    end
       #
       def update(data={})
@@ -53,8 +53,8 @@ module Zendesk
       #
       #    # optional block syntax
       #    @zendesk.groups.create do |group|
-      #      group["name"] = "Cool Guys"
-      #      group["description"] = "wish you could be this cool"
+      #      group[:name] = "Cool Guys"
+      #      group[:description] = "wish you could be this cool"
       #    end
       #
       def create(data={})
