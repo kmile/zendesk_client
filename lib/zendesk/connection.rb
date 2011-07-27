@@ -8,15 +8,15 @@ module Zendesk
     private
 
     # This method sets up HTTP data for all requests
-    def connection(format)
+    def connection(client)
       options = {
         :headers => {
-          :accept => "application/#{@client.format}",
-          :user_agent => @client.user_agent
+          :accept => "application/#{client.format}",
+          :user_agent => client.user_agent
         },
-        :proxy => @client.proxy,
+        :proxy => client.proxy,
         :ssl => {:verify => false},
-        :url => @client.account
+        :url => client.account
       }
 
       conn = Faraday::Connection.new(options) do |builder|
@@ -26,7 +26,7 @@ module Zendesk
         builder.use Faraday::Request::Multipart
         builder.use Faraday::Request::UrlEncoded
         # TODO: builder.use Zendesk::Response::RaiseHttp4xx
-        case format.to_sym
+        case client.format.to_sym
         when :json
           builder.use Faraday::Response::Mashify
           builder.use Faraday::Response::ParseJson

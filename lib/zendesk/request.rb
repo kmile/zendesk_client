@@ -1,25 +1,28 @@
+require "zendesk/connection"
+
 module Zendesk
   module Request
+    extend Connection
 
-    def get(path, options={})
+    def self.get(path, options={})
       request(:get, path, options)
     end
 
-    def do_post(path, options={})
+    def self.post(path, options={})
       request(:post, path, options)
     end
 
-    def do_put(path, options={})
+    def self.put(path, options={})
       request(:put, path, options)
     end
 
-    def do_delete(path, options={})
+    def self.delete(path, options={})
       request(:delete, path, options)
     end
 
     private
 
-    def request(method, path, options, format=:json)
+    def self.request(method, path, options, format=:json)
       # `connection` defined in lib/zendesk/connection.rb
       response = connection(format).send(method) do |request|
         case method
