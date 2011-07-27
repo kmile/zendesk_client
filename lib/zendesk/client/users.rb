@@ -47,7 +47,7 @@ module Zendesk
         @query[:path] += "/current"
         self
       end
-      alias current me
+      alias me current
 
       # ## Create a user
       #

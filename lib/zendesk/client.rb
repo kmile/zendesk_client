@@ -8,7 +8,6 @@ module Zendesk
     # Require client method modules after initializing the Client class in
     # order to avoid a superclass mismatch error, allowing those modules to be
     # Client-namespaced.
-    require "zendesk/client/paginator"
     require "zendesk/client/users"
     require "zendesk/client/organizations"
     require "zendesk/client/groups"
