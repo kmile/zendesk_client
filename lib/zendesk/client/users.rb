@@ -7,7 +7,6 @@ module Zendesk
       #
       #    @zendesk.users                               - returns a list of users (limit 15)
       #    @zendesk.users.per_page(100)                 - returns a list of users (limit 15)
-      #    @zendesk.users(:current)                     - returns the currently authenticated user
       #    @zendesk.users(123)                          - returns the user with id=123
       #    @zendesk.users("Bob")                        - returns users with name matching all or part of "Bob"
       #    @zendesk.users("Bob", :role => :end_user)    - returns users with name matching all or part of "Bob"
@@ -32,8 +31,6 @@ module Zendesk
         case selection = args.shift
         when nil
           @query[:path] = "users"
-        when :current
-          @query[:path] = "users/current"
         when Integer
           @query[:path] = "users/#{selection}"
         when String
@@ -42,21 +39,15 @@ module Zendesk
         end
       end
 
-      # ## Update a user
+      # ## Get currently authenticated user
       #
-      # ### V1
+      #    @zendesk.users.current
       #
-      #    @zendesk.users(123).update({:name => "Wu Tang"})
-      #
-      #    # optional block syntax
-      #    @zendesk.users(123).update do |user|
-      #      user[:email] = "hongkong@phooey.com"
-      #    end
-      #
-      def update(data={})
-        yield data if block_given?
-        do_put(@query.delete(:path), @query.merge(:user => data))
+      def current
+        @query[:path] += "/current"
+        self
       end
+      alias current me
 
       # ## Create a user
       #
@@ -72,6 +63,22 @@ module Zendesk
       def create(data={})
         yield data if block_given?
         do_post(@query.delete(:path), @query.merge(:user => data))
+      end
+
+      # ## Update a user
+      #
+      # ### V1
+      #
+      #    @zendesk.users(123).update({:email => "hongkong@phooey.com"})
+      #
+      #    # optional block syntax
+      #    @zendesk.users(123).update do |user|
+      #      user[:email] = "hongkong@phooey.com"
+      #    end
+      #
+      def update(data={})
+        yield data if block_given?
+        do_put(@query.delete(:path), @query.merge(:user => data))
       end
 
       # ## Delete a user

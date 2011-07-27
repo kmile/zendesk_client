@@ -28,38 +28,38 @@ module Zendesk
         end
       end
 
+      # ## Create a ticket
+      #
+      # ### V1
+      #
+      #    @zendesk.tickets.create({:subject => "My phone fell in the toilet", :description => "HALP ME!"})
+      #
+      #    # optional block syntax
+      #    @zendesk.tickets.create do |ticket|
+      #      ticket[:subject] = "My phone fell in the toilet"
+      #      ticket[:description] = "HALP ME!"
+      #    end
+      #
+      def create(data={})
+        yield data if block_given?
+        do_post(@query.delete(:path), @query.merge(:ticket => data))
+      end
+
       # ## Update a ticket by id
       #
       # ### V1
       #
-      #    @zendesk.tickets(123).update({:name => "Sort of Cool Guys"})
+      #    @zendesk.tickets(123).update({:subject => "My phone fell in the toilet"})
       #
       #    # optional block syntax
       #    @zendesk.tickets(123).update do |ticket|
-      #      ticket[:name] = "Just People"
+      #      ticket[:subject] = "My phone fell in the toilet"
       #      ticket[:description] = "That's all"
       #    end
       #
       def update(data={})
         yield data if block_given?
         do_put(@query.delete(:path), @query.merge(:ticket => data))
-      end
-
-      # ## Create a ticket
-      #
-      # ### V1
-      #
-      #    @zendesk.tickets.create({:name => "Cool Guys", :agents => [123, 456, 789]})
-      #
-      #    # optional block syntax
-      #    @zendesk.tickets.create do |ticket|
-      #      ticket[:name] = "Cool Guys"
-      #      ticket[:description] = "wish you could be this cool"
-      #    end
-      #
-      def create(data={})
-        yield data if block_given?
-        do_post(@query.delete(:path), @query.merge(:ticket => data))
       end
 
       # ## Delete ticket

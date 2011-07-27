@@ -46,7 +46,8 @@ Users
     @zendesk.users.per_page(100)              # all users in account (v2 should accept `?per_page=NUMBER`)
     @zendesk.users.page(2)                    # all users in account (v1 currently accepts `?page=NUMBER`)
     @zendesk.users.next_page                  # all users in account (v1 currently accepts `?page=NUMBER`)
-    @zendesk.users(:current)                  # currently authenticated user
+    @zendesk.users.current                    # currently authenticated user
+    @zendesk.users.me                         # currently authenticated user
     @zendesk.users("Bobo")                    # all users with name matching all or part of "Bobo"
     @zendesk.users(123)                       # return user=123
     @zendesk.users("Bobo", :role => :admin)   # all users with name matching all or part of "Bobo" who are admins
