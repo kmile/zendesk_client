@@ -49,6 +49,16 @@ module Zendesk
       end
       alias me current
 
+      # ## Get a user's identities (email addresses, twitter handles, etc)
+      #
+      #    @zendesk.users(123).identities
+      #
+      # TODO: incredibly dumb
+      def identities
+        @query[:path] += "/user_identities"
+        self
+      end
+
       # ## Create a user
       #
       # ### V1
