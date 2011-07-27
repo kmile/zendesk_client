@@ -1,5 +1,5 @@
-Zendesk API Ruby Client
-=======================
+Zendesk API Ruby Client [ under development ]
+=============================================
 
 Usage
 =====
