@@ -5,7 +5,7 @@ describe Zendesk::Client do
     client = Zendesk::Client.new do |config|
       config.account ENDPOINT
     end
-    assert_equal ENDPOINT, client.endpoint
+    assert_equal ENDPOINT, client.account
   end
 
   it "should accept email and password auth options" do

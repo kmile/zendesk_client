@@ -16,7 +16,7 @@ module Zendesk
         },
         :proxy => @client.proxy,
         :ssl => {:verify => false},
-        :url => @client.endpoint
+        :url => @client.account
       }
 
       conn = Faraday::Connection.new(options) do |builder|

@@ -15,7 +15,7 @@ module Zendesk
     # Both of these methods are very naive
     # just sketching it out for now
     def account(uri)
-      @endpoint = uri
+      @account = uri
     end
 
     def basic_auth(email, password)
@@ -23,7 +23,7 @@ module Zendesk
     end
 
 #     def inspect
-#       "#<#{self.class} @endpoint=#{endpoint} @email=#{email} @password=****** @proxy=#{proxy} @cache=#{@cache}>"
+#       "#<#{self.class} @account=#{account} @email=#{email} @password=****** @proxy=#{proxy} @cache=#{@cache}>"
 #     end
   end
 end

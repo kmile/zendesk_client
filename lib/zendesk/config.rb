@@ -6,7 +6,7 @@ module Zendesk
       :adapter,
       :consumer_key,
       :consumer_secret,
-      :endpoint,
+      :account,
       :email,
       :password,
       :format,
@@ -72,7 +72,7 @@ module Zendesk
     # Reset all configuration options to defaults
     def reset
       self.adapter            = DEFAULT_ADAPTER
-      self.endpoint           = nil
+      self.account            = nil
       self.email              = nil
       self.password           = nil
       self.consumer_key       = DEFAULT_CONSUMER_KEY
