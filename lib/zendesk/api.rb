@@ -12,12 +12,6 @@ module Zendesk
       yield self if block_given?
     end
 
-    # Both of these methods are very naive
-    # just sketching it out for now
-    def account(uri)
-      @account = uri
-    end
-
     def basic_auth(email, password)
       @email, @password = email, password
     end

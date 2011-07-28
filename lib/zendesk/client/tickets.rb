@@ -16,16 +16,7 @@ module Zendesk
     class TicketsCollection < Collection
 
       def initialize(client, *args)
-        clear_cache
-        @client = client
-        @query  = args.last.is_a?(Hash) ? args.pop : {}
-
-        case selection = args.shift
-        when nil
-          @query[:path] = "tickets"
-        when Integer
-          @query[:path] = "tickets/#{selection}"
-        end
+        super(client, :tickets, *args)
       end
 
       # ## Create a ticket
@@ -40,10 +31,6 @@ module Zendesk
       #      ticket[:description] = "HALP ME!"
       #    end
       #
-      def create(data={})
-        yield data if block_given?
-        do_post(@query.delete(:path), @query.merge(:ticket => data))
-      end
 
       # ## Update a ticket by id
       #
@@ -57,10 +44,6 @@ module Zendesk
       #      ticket[:description] = "That's all"
       #    end
       #
-      def update(data={})
-        yield data if block_given?
-        do_put(@query.delete(:path), @query.merge(:ticket => data))
-      end
 
       # ## Delete ticket
       #
@@ -68,9 +51,6 @@ module Zendesk
       #
       #    @zendesk.tickets(123).delete
       #
-      def delete(options={})
-        do_delete(@query.delete(:path), options)
-      end
     end
   end
 end
