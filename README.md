@@ -1,32 +1,49 @@
 Zendesk API Ruby Client [ under development ]
-=============================================
-
-Usage
-=====
+===============================================
+This gem is intended to be an "official" Zendesk Ruby client, it is currently in the process of being developed.
+The idea is a client which fully supports all of the Zendesk API, is flexible, and supports JSON and XML.
+Faraday (https://github.com/technoweenie/faraday) is the money sauce underneath that makes this gem rock. Much of the design
+has been inspired (lifted?) from the excellent Twitter ruby gem (https://github.com/jnunemaker/twitter). The way this library differs
+the most is in the implementation of `collections`, sort of lazy proxy objects that make chainable methods and lazy code possible
+(large GET requests won't actually be made until the `collection` is iterated over).
 
 Connection
 ----------
 
-    # API v1 only supports HTTP Basic Authentication
+Basic Auth over HTTPS is currently the supported way to authenticate API requests.
+(note: SSL must be enabled on the account settings page /settings/security#ssl)
+
+    require "zendesk"
+
     @zendesk = Zendesk::Client.new do |config|
-      config.account "https://coolcompany.zendesk.com"
+      config.account = "https://coolcompany.zendesk.com"
       config.basic_auth "email@email.com", "password"
     end
 
-    # API v2 also supports Oauth 2.0
+OAuth support planned for API v2
+
     @zendesk = Zendesk::Client.new do |config|
-      config.account "https://support.coolcompany.com"
-      config.oauth token, token_secret
+      config.account = "https://support.coolcompany.com"
+      config.oauth "<token>", "<token_secret>"
     end
+
 
 
 Collections
 -----------
+Collections are an implementation detail of this gem, they are Enumerable objects. The intention is to make fetching results that span across "pages"
+transparent or fetching a specific page of results easily. Collections define:
+
+  * `fetch`        - perform actual GET request manually, returns response body as JSON or XML
+  * `each`         - iterate the individual results of the collection (calling `fetch` on your behalf)
+  * `next_page`    - GET next page of results for that collection
+  * `per_page(50)` - change the number of results for a page of results
+  * `page(3)`      - GET specific page of results
 
 Collections of resources are fetched as lazily as possible. For example `@zendesk.users` does not hit the API until it is iterated over
-(calling `each`) or until an item is asked for (e.g., `@zendesk.users[0]`).
+(by calling `each`) or until an item is asked for (e.g., `@zendesk.users[0]`).
 
-This laziness allows us chain methods in cool ways like:
+This allows us chain methods in cool ways like:
 
   * `@zendesk.tickets.create({ ... data ... })`
   * `@zendesk.tickets(123).update({ ... data ... })`
@@ -35,30 +52,41 @@ This laziness allows us chain methods in cool ways like:
 GET requests are not made until the last possible moment. Calling `fetch` will return the HTTP response (first looking in the cache). If you
 want to avoid the cached result you can call `fetch(true)` which will force the client to update its internal cache with the latest HTTP response.
 
-PUT, POST and DELETE requests are issued immediately and respond immediately.
+PUT (update), POST (create) and DELETE (delete) requests are fired immediately.
+
+
 
 Users
 -----
 
-    GET
+**GET**
+
+You may fetch users individually by id
+
+    @zendesk.users(123)                       # return user by id
+    @zendesk.users.current                    # currently authenticated user, (`@zendesk.users.me` is an alias)
+
+all users
+
     @zendesk.users                            # all users in account
     @zendesk.users.each {|user| ..code.. }    # iterate over requested users
     @zendesk.users.per_page(100)              # all users in account (v2 should accept `?per_page=NUMBER`)
     @zendesk.users.page(2)                    # all users in account (v1 currently accepts `?page=NUMBER`)
     @zendesk.users.next_page                  # all users in account (v1 currently accepts `?page=NUMBER`)
-    @zendesk.users.current                    # currently authenticated user
-    @zendesk.users.me                         # currently authenticated user
+
+a list of users matching criteria
+
     @zendesk.users("Bobo")                    # all users with name matching all or part of "Bobo"
-    @zendesk.users(123)                       # return user=123
     @zendesk.users("Bobo", :role => :admin)   # all users with name matching all or part of "Bobo" who are admins
     @zendesk.users(:role => :agent)           # all users who are agents
     @zendesk.users(:role => "agent")          # all users who are agents
-    @zendesk.users(:group => 123)             # all users who are members of group id=123
-    @zendesk.users(:organization => 123)      # all users who are members of group id=123
+    @zendesk.users(:group => 123)             # all users who are members of group id
+    @zendesk.users(:organization => 123)      # all users who are members of organization id
     @zendesk.user(123).identities             # all identities in account for a given user
 
-    POST
-    A successful POST will return the created user
+**POST**
+
+A successful POST will return the created user in the response body along with a Location header with the URI to the newly created resource
 
     # create user from hash
     @zendesk.users.create({:name => "Bobo Yodawg",
@@ -74,50 +102,67 @@ Users
       user[:roles] = 4
     end
 
-    PUT
-    A successful PUT will return the updated user
+**PUT**
 
-    # edit user=123 with hash
+A successful PUT will return the updated user in the response body
+
+edit user with hash
+
     @zendesk.users(123).update({:remote_photo_url => "yo@dawg.com"})
 
-    # edit user=123 with block
+or edit user with block
+
     @zendesk.users(123).update do |user|
       user[:remote_photo_url] = "yo@dawg.com"
     end
 
-    @zendesk.users(123).identities.update({:email => "yo@dawg.com"})                    # add email address to user=123
-    @zendesk.users(123).identities.update({:email => "yo@dawg.com", :primary => true})  # add email address to user=123
+**DELETE**
 
-    # add twitter handle to user=123
-    @zendesk.users(123).identities.update({:twitter => "yodawg"})
+    @zendesk.users(123).delete
 
-    DELETE
-    @zendesk.users(123).delete                                                # deletes user=123
+**User Identities**
+
+Users can have multiple identities. When a customer submits a ticket for the first time, their `identity` is based on the channel they submitted the ticket through.
+Supported identites are `email`, `twitter handle`, `facebook account`, `openid`, `google account`.
+
+    @zendesk.users(123).identities.create({:email => "yo@dawg.com"})
+
+add a twitter handle for a user
+
+    @zendesk.users(123).identities.create({:twitter => "yodawg"})
+
+Identities that include an email address can be set to `primary` which will cause all notifications to be sent to that associated email address.
+
+    @zendesk.users(123).identities(3).update({:primary => true})
+
+
 
 Tickets
 -------
-    All operations on tickets should be done through the tickets method. The client should hide
-    the complexity of "rules", "views", "requests" and be clear about what is happening.
-    It would be really good to work through all the best use cases and possibly add methods that
-    make sense for tickets, e.g., `@zendesk.tickets(1234).assign(user.id)`
+All operations on tickets should be done through the tickets method. The client should hide
+the complexity of "rules", "views", "requests" and be clear about what is happening.
+It would be really good to work through all the best use cases and possibly add methods that
+make sense for tickets, e.g., `@zendesk.tickets(1234).assign(user.id)`
 
-    GET
-    @zendesk.tickets                                                           # TODO: not supported currently
-    @zendesk.tickets(123)                                                      # return ticket=123
+**GET**
 
-    @zendesk.tickets(:view => 123)                                             # all tickets for view=123
-    @zendesk.tickets(:view => "dev")                                           # TODO: not supported currently
+    @zendesk.tickets                                       # TODO: not supported currently
+    @zendesk.tickets(123)                                  # return ticket by id
 
-    @zendesk.tickets(:tags => ["foo"])                                         # all tickets with tags=foo
-    @zendesk.tickets(:tags => ["foo", "bar"])                                  # all tickets with tag=foo OR tag=bar
+    @zendesk.tickets(:view => 123)                         # all tickets for view id
+    @zendesk.tickets(:view => "dev")                       # TODO: not supported currently
 
-    @zendesk.tickets(:requester => 123)                                        # all tickets for requester=123
-    @zendesk.tickets(:group => 123)                                            # all tickets for group=123
-    @zendesk.tickets(:organization => 123)                                     # all tickets for organization=123
-    @zendesk.tickets(:assignee => 123)                                         # all tickets for organization=123
+    @zendesk.tickets(:tags => ["foo"])                     # all tickets with tags=foo
+    @zendesk.tickets(:tags => ["foo", "bar"])              # all tickets with tag=foo OR tag=bar
 
-    POST
-    A successful POST will return the created ticket
+    @zendesk.tickets(:requester => 123)                    # all tickets for requester id
+    @zendesk.tickets(:group => 123)                        # all tickets for group id
+    @zendesk.tickets(:organization => 123)                 # all tickets for organization id
+    @zendesk.tickets(:assignee => 123)                     # all tickets for organization id
+
+**POST**
+
+A successful POST will return the created ticket in the response body along with a Location header with the URI to the newly created resource
 
     # create ticket from hash
     @zendesk.tickets.create({:description => "phone fell into the toilet",
@@ -134,52 +179,45 @@ Tickets
       ticket[:set_tags] = ["phone", "toilet"]
     end
 
-    # creates new ticket from tweet
+create a new ticket from tweet ("twicket")
+
     @zendesk.tickets.create({:tweet, :tweet_id => 123456})
 
-    PUT
-    A successful PUT will return the updated ticket
+**PUT**
+
+A successful PUT will return the updated ticket in the response body
 
     @zendesk.tickets(123).update({:assignee_id => 321})                        # edit ticket (data passed in overrides existing)
     @zendesk.tickets(123).update({:set_tags => ["foo"]})                       # adds tags to ticket
     @zendesk.tickets(123).comment("my comment", {:public => true})             # adds comment to ticket
 
-    DELETE
+**DELETE**
+
     @zendesk.tickets(123).delete
 
 Tags
 ----
 
-    GET
-    @zendesk.tags                                                              # 100 most used tags in the account
-    @zendesk.tags("foo", :entries)                                             # entries matching tag=foo (limit 15)
-    @zendesk.tags("foo", :tickets)                                             # tickets matching tag=foo (limit 15)
-    @zendesk.tags("foo", :tickets, :page => 2)                                 # next page of tickets matching tag=foo (limit 15)
-    @zendesk.tags(["foo", "bar"], :tickets)                                    # tickets matching tag=foo OR tag=bar (limit 15)
+**GET**
 
-Attachments
------------
-	TODO: later...
+    @zendesk.tags                                            # 100 most used tags in the account
+    @zendesk.tags("foo", :type => "entry")                   # forum entries matching tag (limit 15)
+    @zendesk.tags("foo", :type = > "ticket")                 # tickets matching tag (limit 15)
+    @zendesk.tags(["foo", "bar"], :type => "ticket")         # tickets matching tag=foo OR tag=bar (limit 15)
 
-    GET
 
-    POST
-
-    PUT
-
-    DELETE
 
 Organizations
 -------------
-    Organizations are for end-users
+Organizations are basically `groups` for customers/requesters.
 
-    GET
-    @zendesk.organizations                                                     # all organizations in account
-    @zendesk.organizations(123)                                                # returns organization=123
-    @zendesk.oragnizations(123, :users => true)                                # returns organization=123 AND its members
+**GET**
 
-    POST
-    A successful POST will return the created organization
+    @zendesk.organizations                          # all organizations in account
+    @zendesk.organizations(123)                     # returns organization by id
+    @zendesk.oragnizations(123, :users => true)     # returns organization by id AND its members
+
+**POST**
 
     # create organization from hash
     @zendesk.organizations.create({:name => "Fraggle Rock"})
@@ -190,26 +228,28 @@ Organizations
       org[:users] = [123, 345]
     end
 
-    PUT
-    A successful PUT will return the updated organization
+**PUT**
 
-    @zendesk.organizations(123).update({:name => "Soopa Funk"})                # edit name of organization=123
-    @zendesk.organizations(123).update({:users => [123, 456]})                 # edit users of organization=123
+    @zendesk.organizations(123).update({:name => "Soopa Funk"})       # edit name of organization=123
+    @zendesk.organizations(123).update({:users => [123, 456]})        # edit users of organization=123
 
-    DELETE
+**DELETE**
+
     @zendesk.organizations(123).delete
+
+
 
 Groups
 ------
-    Groups are for Zendesk agents
+Groups are for support agents in your account. Keep in mind `organizations` are for your customers and `groups` are for your agents.
 
-    GET
-    @zendesk.groups                                                            # all organizations in account
-    @zendesk.groups(123)                                                       # returns organization=123
-    @zendesk.groups(123, :users => true)                                       # returns organization=123 AND its members
+**GET**
 
-    POST
-    A successful PUT will return the updated group
+    @zendesk.groups                                      # all organizations in account
+    @zendesk.groups(123)                                 # returns organization=123
+    @zendesk.groups(123, :users => true)                 # returns organization=123 AND its members
+
+**POST**
 
     # create group from hash
     @zendesk.groups.create({:name => "Cool People", :agents => [123, 456]})
@@ -220,28 +260,31 @@ Groups
       group[:agents] = [123, 456]
     end
 
-    PUT
-    A successful PUT will return the updated group
+**PUT**
 
-    @zendesk.groups(123).update({:agents => [123, 456]})
+    @zendesk.groups(123).update({:agents => [123, 456]})     # set group membership to the list of agent ids
 
-    # remove all agents
+remove all agents (basically setting agents to an empty set/array
+
     @zendesk.groups(123).update({:agents => []})
 
-    DELETE
+**DELETE**
+
     @zendesk.groups(123).delete
+
+
 
 Forums
 ------
-    Still wresting with how to best represent forums/entries in the client library.
+Still wresting with how to best represent forums/entries in the client library.
 
-    GET
+**GET**
+
     @zendesk.forums                                          # all forums in account
     @zendesk.forums(123)                                     # returns forum=123
     @zendesk.forums(123).entries                             # returns all entries for forum=123
 
-    POST
-    A successful POST will return the created forum
+**POST**
 
     # create forum from hash
     @zendesk.forums.create({:name => "FAQ",
@@ -257,51 +300,110 @@ Forums
       forum[:visibility] = 1
     end
 
-    @zendesk.forums.add_entry(123, :title => "stuff",                           # creates new entry for forum=123
-                                  :body => "and stuff",
-                                  :pinned => true,
-                                  :locked => false
-                                  :tags => ["foo", "bar"])
+create a new entry for a forum
 
-    PUT
-    A successful POST will return the created forum or entry
+    @zendesk.forums(123).entry.create({:title => "stuff",
+                                       :body => "and stuff",
+                                       :pinned => true,
+                                       :locked => false
+                                       :tags => ["foo", "bar"]})
 
-    @zendesk.forum_update(123, :public => false)                               # edit forum=123
-    @zendesk.forum_entry_update(123, :public => false)                         # edit forum=123
+**PUT**
 
-    DELETE
-    @zendesk.forum_delete(123)                                                 # deletes forum=123 AND related posts and comments
+    @zendesk.forum(123).entry(2).update(:public => false)     # edit forum entry by id
+
+**DELETE**
+
+    @zendesk.forum_delete(123)
+
+
 
 Search
 ------
 
-    GET
+**GET**
 
-    POST
 
-    PUT
+**POST**
 
-    DELETE
+
+**PUT**
+
+
+**DELETE**
+
+
 
 Ticket Fields
 -------------
 
-    GET
+**GET**
 
-    POST
 
-    PUT
+**POST**
 
-    DELETE
+
+**PUT**
+
+
+**DELETE**
+
+
 
 Macros
 ------
 
-    GET
+**GET**
 
-    POST
 
-    PUT
+**POST**
 
-    DELETE
 
+**PUT**
+
+
+**DELETE**
+
+
+
+Attachments
+-----------
+
+**GET**
+
+**POST**
+
+**PUT**
+
+**DELETE**
+
+
+
+Contributing
+------------
+Contribution is encouraged and will be acknowledged in the gem's contributor's list. Everyone will know you helped and it will rock.
+
+Ways you can help:
+
+  * report bugs
+  * writing/fixing documentation
+  * writing specifications (provide suggestions for API v2)
+  * writing code (refactoring, strengthening areas that are weak, catching typos)
+
+Note on Patches/Pull Requests
+-----------------------------
+  * Fork the project.
+  * Make your feature addition or bug fix.
+  * Add tests for it. This is important so we don't break it in a future version unintentionally.
+  * Commit
+  * Send a pull request. Bonus points for topic branches.
+
+MIT License
+-----------
+Copyright (c) 2011 Zendesk
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
