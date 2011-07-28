@@ -1,5 +1,5 @@
 require "active_support/inflector" # `singularize`
-require "zendesk/request"
+# require "zendesk/request"
 require "zendesk/connection"
 require "zendesk/paginator"
 
@@ -7,6 +7,7 @@ module Zendesk
   class Collection
     include Paginator  # `clear_cache`, `fetch`, `each`, `[]`, `page`, `per_page`
     extend Connection  # `connection`
+    include Connection
 
     attr_accessor *Config::VALID_OPTIONS_KEYS
 
@@ -31,30 +32,18 @@ module Zendesk
       request(:get, path, options)
     end
 
-    def post(path, options={})
-      request(:post, path, options)
-    end
-
-    def put(path, options={})
-      request(:put, path, options)
-    end
-
-    def delete(path, options={})
-      request(:delete, path, options)
-    end
-
     def create(data={})
       yield data if block_given?
-      post(@client, @query.delete(:path), @query.merge(@resource.to_sym => data))
+      request(:post, @query.delete(:path), @query.merge(@resource.to_sym => data))
     end
 
     def update(data={})
       yield data if block_given?
-      Request.put(@client, @query.delete(:path), @query.merge(@resource.to_sym => data))
+      request(:put, @query.delete(:path), @query.merge(@resource.to_sym => data))
     end
 
     def delete(options={})
-      Request.delete(@client, @query.delete(:path), options)
+      request(:delete, @query.delete(:path), options)
     end
 
     private

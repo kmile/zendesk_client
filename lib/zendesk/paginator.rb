@@ -37,7 +37,7 @@ module Zendesk
     def fetch(force=false)
       if @cache.nil? || force
         options = query.dup
-        @cache = Request.get(options.delete(:path), options)
+        @cache = get(options.delete(:path), options)
       end
       @cache
     end
