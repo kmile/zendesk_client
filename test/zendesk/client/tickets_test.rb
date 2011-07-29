@@ -13,11 +13,11 @@ describe Zendesk::Client::Users do
   describe "Tickets API" do
     it "should fit this API" do
 #       # POST
-#       ticket = @zendesk.tickets.create do |t|
-#         t[:subject] = "help, my toilet fell into the toilet"
-#         t[:description] = "not my fault"
-#       end
-# 
+      ticket = @zendesk.tickets.create do |t|
+        t[:subject] = "help, my toilet fell into the toilet"
+        t[:description] = "not my fault"
+      end
+
 #       # GET
 #       @zendesk.tickets(ticket.id).fetch
 # 

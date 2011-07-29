@@ -1,24 +1,14 @@
 module Zendesk
   class Client
     module Users
-      # ## All GET requests for users
-      #
-      # ### V1
-      #
-      #    @zendesk.users                               - returns a list of users (limit 15)
-      #    @zendesk.users.per_page(100)                 - returns a list of users (limit 15)
-      #    @zendesk.users(123)                          - returns the user with id=123
-      #    @zendesk.users("Bob")                        - returns users with name matching all or part of "Bob"
-      #    @zendesk.users("Bob", :role => :end_user)    - returns users with name matching all or part of "Bob"
-      #
+      # @zendesk.users                               - a list of users (limit 15)
+      # @zendesk.users.per_page(100)                 - a list of users (limit 15)
+      # @zendesk.users(123)                          - the user with id=123
+      # @zendesk.users("Bob")                        - users with name matching all or part of "Bob"
+      # @zendesk.users("Bob", :role => :end_user)    - users with name matching all or part of "Bob"
       def users(*args)
-        # passes the instance of the client into the collection
-        # so that all the client configuration is visible for
-        # making the actual HTTP requests
         UsersCollection.new(self, *args)
       end
-      # cuz "users" are people: <3 your helpdesk.
-      alias people users
     end
 
     class UsersCollection < Collection
