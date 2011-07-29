@@ -2,10 +2,13 @@ Zendesk API Ruby Client [ under development ]
 ===============================================
 This gem is intended to be an "official" Zendesk Ruby client, it is currently in the process of being developed.
 The idea is a client which fully supports all of the Zendesk API, is flexible, and supports JSON and XML.
-Faraday (https://github.com/technoweenie/faraday) is the money sauce underneath that makes this gem rock. Much of the design
-has been inspired (lifted?) from the excellent Twitter ruby gem (https://github.com/jnunemaker/twitter). The way this library differs
-the most is in the implementation of `collections`, sort of lazy proxy objects that make chainable methods and lazy code possible
-(large GET requests won't actually be made until the `collection` is iterated over).
+Faraday (https://github.com/technoweenie/faraday) is the money sauce underneath that makes this gem rock. Some of the basic code layout
+has been borrowed from the excellent Twitter ruby gem (https://github.com/jnunemaker/twitter), there was no need to be clever there.
+The way this library differs the most is in the implementation of `collections` *see section below.
+
+Think of the code below as a proposal for how the client should work, this is still the early stages of this code.
+I am open to suggestions and changes that will make this great to work with. Take a look at the "Contributions" section if you are interested in helping out,
+I look forward to working with others and gathering as much feedback as possible.
 
 Connection
 ----------
