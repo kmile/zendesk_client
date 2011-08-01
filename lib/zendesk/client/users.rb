@@ -16,6 +16,7 @@ module Zendesk
       def initialize(client, *args)
         clear_cache
         @client = client
+        @resource = "user"
         @query  = args.last.is_a?(Hash) ? args.pop : {}
 
         case selection = args.shift
@@ -48,49 +49,6 @@ module Zendesk
         @query[:path] += "/user_identities"
         self
       end
-
-      # ## Create a user
-      #
-      # ### V1
-      #
-      #    @zendesk.users.create({:name => "Mr. Miyagi"})
-      #
-      #    # optional block syntax
-      #    @zendesk.users.create do |user|
-      #      user[:name] = "Mr. Miyagi"
-      #    end
-      #
-      def create(data={})
-        yield data if block_given?
-        do_post(@query.delete(:path), @query.merge(:user => data))
-      end
-
-      # ## Update a user
-      #
-      # ### V1
-      #
-      #    @zendesk.users(123).update({:email => "hongkong@phooey.com"})
-      #
-      #    # optional block syntax
-      #    @zendesk.users(123).update do |user|
-      #      user[:email] = "hongkong@phooey.com"
-      #    end
-      #
-      def update(data={})
-        yield data if block_given?
-        do_put(@query.delete(:path), @query.merge(:user => data))
-      end
-
-      # ## Delete a user
-      #
-      # ### V1
-      #
-      #    @zendesk.users(123).delete
-      #
-      def delete(options={})
-        do_delete(@query.delete(:path), options)
-      end
-
     end
   end
 end

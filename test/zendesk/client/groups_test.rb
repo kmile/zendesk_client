@@ -3,7 +3,7 @@ require "test_helper"
 describe Zendesk::Client::Users do
   before do
     @zendesk = Zendesk::Client.new do |config|
-      config.account ENDPOINT
+      config.account = ENDPOINT
       config.basic_auth EMAIL, PASSWORD
     end
 

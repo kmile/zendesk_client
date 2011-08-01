@@ -25,7 +25,7 @@ module Zendesk
         # TODO: builder.use Faraday::Request::OAuth, authentication if authenticated?
         builder.use Faraday::Request::Multipart
         builder.use Faraday::Request::UrlEncoded
-        # TODO: builder.use Zendesk::Response::RaiseHttp4xx
+        builder.use Zendesk::Response::RaiseHttp4xx
         case client.format.to_sym
         when :json
           builder.use Faraday::Response::Mashify

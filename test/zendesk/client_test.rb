@@ -3,7 +3,7 @@ require "test_helper"
 describe Zendesk::Client do
   it "should connect to the URI provided" do
     client = Zendesk::Client.new do |config|
-      config.account ENDPOINT
+      config.account = ENDPOINT
     end
     assert_equal ENDPOINT, client.account
   end

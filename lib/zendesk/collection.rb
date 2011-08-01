@@ -32,6 +32,14 @@ module Zendesk
       request(:get, path, options)
     end
 
+    def put(path, options={})
+      request(:put, path, options)
+    end
+
+    def post(path, options={})
+      request(:post, path, options)
+    end
+
     def create(data={})
       yield data if block_given?
       request(:post, @query.delete(:path), @query.merge(@resource.to_sym => data))

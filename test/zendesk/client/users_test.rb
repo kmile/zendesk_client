@@ -3,7 +3,7 @@ require "test_helper"
 describe Zendesk::Client::Users do
   before do
     @zendesk = Zendesk::Client.new do |config|
-      config.account ENDPOINT
+      config.account = ENDPOINT
       config.basic_auth EMAIL, PASSWORD
     end
 
@@ -27,9 +27,9 @@ describe Zendesk::Client::Users do
     end
 
     it "all users by query" do
-      if ENDPOINT =~ /localhost/ # search on localhost is a pain
+      unless ENDPOINT =~ /localhost/ # search on localhost is a pain
         users = @zendesk.users("foo").fetch
-          # assert users.size > 0
+        assert users.size > 0
       end
     end
   end
