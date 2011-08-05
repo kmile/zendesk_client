@@ -5,7 +5,7 @@ require "zendesk/paginator"
 
 module Zendesk
   class Collection
-    include Paginator  # `clear_cache`, `fetch`, `each`, `[]`, `page`, `per_page`
+    include Paginator  # `clear_cache`, `fetch`, `each`, `[]`, `page`, `per_page`, `method_missing`
     extend Connection  # `connection`
     include Connection
 
