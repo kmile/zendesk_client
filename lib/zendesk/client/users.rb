@@ -45,8 +45,8 @@ module Zendesk
       #    @zendesk.users(123).identities
       #
       # TODO: incredibly dumb
-      def identities
-        @query[:path] += "/user_identities"
+      def identities(id=nil)
+        @query[:path] += "/user_identities/#{id}"
         self
       end
     end

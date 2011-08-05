@@ -50,5 +50,9 @@ module Zendesk
     def [](idx)
       fetch[idx]
     end
+
+    def method_missing(method, *args)
+      fetch.send(method, *args)
+    end
   end
 end
