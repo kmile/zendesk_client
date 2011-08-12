@@ -22,7 +22,7 @@ describe Zendesk::Client::Users do
     end
 
     it "currently authenticated user" do
-      user = @zendesk.users(:current).fetch
+      user = @zendesk.users.current.fetch
       assert user.name
     end
 
@@ -72,8 +72,6 @@ describe Zendesk::Client::Users do
     it "should delete user" do
       user = @zendesk.users.create({:name => "Hong Kong Phooey"})
       @zendesk.users(user.id).delete
-
-      # will 404 now
     end
   end
 
