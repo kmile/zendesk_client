@@ -30,7 +30,7 @@ module Zendesk
     # The adapter that will be used to connect if none is set
     #
     # @note The default faraday adapter is Net::HTTP.
-    DEFAULT_ADAPTER = :patron
+    DEFAULT_ADAPTER = :net_http
 
     # By default, don't set an application key
     DEFAULT_CONSUMER_KEY = nil
