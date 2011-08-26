@@ -1,7 +1,7 @@
 require "rubygems"
 require "minitest/autorun"
-require "webmock"
-include WebMock::API
+# require "webmock"
+# include WebMock::API
 
 $: << File.expand_path("../lib")
 require "zendesk"
