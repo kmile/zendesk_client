@@ -14,6 +14,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "multi_xml", "~> 0.2.0"
   gem.add_runtime_dependency "multi_json", "~> 1.0.0"
   gem.add_runtime_dependency "patron", "~> 0.4.12"
+  gem.add_runtime_dependency "active_support"
 
   gem.authors = ["Dylan Clendenin"]
   gem.description = %q|A Ruby client for the Zendesk REST API|

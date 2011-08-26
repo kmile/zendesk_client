@@ -34,7 +34,7 @@ module Zendesk
           builder.use Faraday::Response::Mashify
           builder.use Faraday::Response::ParseXml
         end
-        builder.use Faraday::Response::Logger
+        # builder.use Faraday::Response::Logger
         # TODO: builder.use Faraday::Response::RaiseHttp5xx
         # finally
         builder.adapter(@client.adapter)

@@ -1,6 +1,5 @@
 require "rubygems"
 require "minitest/autorun"
-require "minitest/pride" # Colors show your testing pride
 require "webmock"
 include WebMock::API
 
@@ -19,12 +18,9 @@ FORMATS = Zendesk::Config::VALID_FORMATS
 
 if ENV["LIVE"] #################################################################
 
-  # stick credentials in test/config.yml
-  file = File.expand_path(File.join(File.dirname(__FILE__), "config.yml"))
-  config = YAML.load(File.open(file))
-  ENDPOINT = config["uri"]
-  EMAIL    = config["email"]
-  PASSWORD = config["password"]
+  ENDPOINT = ENV["ZENDESK_API_URI"]
+  EMAIL    = ENV["ZENDESK_API_USER"]
+  PASSWORD = ENV["ZENDESK_API_PASSWORD"]
 
 else ###########################################################################
 
