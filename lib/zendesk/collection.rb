@@ -54,7 +54,9 @@ module Zendesk
       request(:delete, @query.delete(:path), options)
     end
 
-    private
+
+    private #######################################################
+
 
     def request(method, path, options)
       # `connection` defined in lib/zendesk/connection.rb

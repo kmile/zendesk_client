@@ -1,33 +1,32 @@
 require "test_helper"
 
-describe Zendesk::Client::Users do
+describe Zendesk::Client::Groups do
   before do
     @zendesk = Zendesk::Client.new do |config|
       config.account = ENDPOINT
       config.basic_auth EMAIL, PASSWORD
     end
 
-    @group_id = ENV["LIVE"] ? @zendesk.groups[-1]["id"] : 123
+    @group_id = ENV["LIVE"] ? @zendesk.groups[-1].id : 123
   end
 
   describe "GET" do
     it "all groups" do
       groups = @zendesk.groups.fetch
-      assert groups.size > 0
+      refute_empty groups
     end
 
     it "single group by id" do
       group = @zendesk.groups(@group_id).fetch
-      assert group.name
+      refute_nil group
     end
   end
 
   describe "POST" do
     it "should create a group with a hash" do
-      data = {:name => "Wu Tang Clan"}
-      group = @zendesk.groups.create(data)
+      group = @zendesk.groups.create({:name => "Wu Tang Clan"})
       assert_equal "Wu Tang Clan", group.name
-      @zendesk.groups(group["id"]).delete
+      @zendesk.groups(group.id).delete
     end
 
     it "should create a group with a block" do
@@ -35,14 +34,13 @@ describe Zendesk::Client::Users do
         group[:name] = "Wu Tang Clan"
       end
       assert_equal "Wu Tang Clan", group.name
-      @zendesk.groups(group["id"]).delete
+      @zendesk.groups(group.id).delete
     end
   end
 
   describe "PUT" do
     it "should update group with a hash" do
-      data = {:name => "Souls of Mischief"}
-      @zendesk.groups(@group_id).update(data)
+      @zendesk.groups(@group_id).update({:name => "Souls of Mischief"})
       group = @zendesk.groups(@group_id).fetch
       assert_equal "Souls of Mischief", group.name
     end
@@ -58,10 +56,8 @@ describe Zendesk::Client::Users do
   describe "DELETE" do
     it "should delete group" do
       group = @zendesk.groups.create({:name => "Visionaries"})
-      @zendesk.groups(group["id"]).delete
-
-      # will 404 now
+      @zendesk.groups(group.id).delete
+      assert_raises(Zendesk::NotFound) { @zendesk.groups(group.id).fetch }
     end
   end
-
 end

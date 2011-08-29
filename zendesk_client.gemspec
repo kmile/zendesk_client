@@ -7,6 +7,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "rake", "~> 0.8"
   gem.add_development_dependency "webmock", "~> 1.6"
   gem.add_development_dependency "yard", "~> 0.7"
+  gem.add_development_dependency "minitest"
 
   gem.add_runtime_dependency "hashie", "~> 1.0.0"
   gem.add_runtime_dependency "faraday", "~> 0.6.0"
@@ -14,6 +15,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "multi_xml", "~> 0.2.0"
   gem.add_runtime_dependency "multi_json", "~> 1.0.0"
   gem.add_runtime_dependency "active_support"
+  gem.add_runtime_dependency "patron"
 
   gem.authors = ["Dylan Clendenin"]
   gem.description = %q|A Ruby client for the Zendesk REST API|

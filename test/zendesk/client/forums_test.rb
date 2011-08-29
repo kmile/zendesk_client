@@ -1,36 +1,35 @@
 require "test_helper"
 
-describe Zendesk::Client::Users do
+describe Zendesk::Client::Forums do
   before do
     @zendesk = Zendesk::Client.new do |config|
       config.account = ENDPOINT
       config.basic_auth EMAIL, PASSWORD
     end
 
-    @forum_id = ENV["LIVE"] ? @zendesk.forums[-1]["id"] : 123
+    @forum_id = ENV["LIVE"] ? @zendesk.forums[-1].id : 123
   end
 
   describe "GET" do
     it "should get all forums" do
       forums = @zendesk.forums.fetch
-      assert forums.size > 0
+      refute_empty forums
     end
 
     it "should get a single forum by id" do
       forum = @zendesk.forums(@forum_id).fetch
-      assert forum.name
+      refute_nil forum
     end
 
     it "should get all entries for a forum" do
       entries = @zendesk.forums(@forum_id).entries.fetch
-      assert entries
+      refute_empty entries
     end
   end
 
   describe "POST" do
     it "should create a forum with a hash" do
-      data = {:name => "FAQ"}
-      forum = @zendesk.forums.create(data)
+      forum = @zendesk.forums.create({:name => "FAQ"})
       assert_equal "FAQ", forum.name
       @zendesk.forums(forum["id"]).delete
     end
@@ -47,8 +46,7 @@ describe Zendesk::Client::Users do
 
   describe "PUT" do
     it "should update forum with a hash" do
-      data = {:description => "bla"}
-      @zendesk.forums(@forum_id).update(data)
+      @zendesk.forums(@forum_id).update({:description => "bla"})
       forum = @zendesk.forums(@forum_id).fetch
       assert_equal "bla", forum.description
     end
@@ -65,7 +63,7 @@ describe Zendesk::Client::Users do
     it "should delete forum" do
       forum = @zendesk.forums.create({:name => "FAQ"})
       @zendesk.forums(forum["id"]).delete
+      assert_raises(Zendesk::NotFound) { @zendesk.forums(forum.id).fetch }
     end
   end
-
 end

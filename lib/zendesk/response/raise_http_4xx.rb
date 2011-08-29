@@ -34,17 +34,19 @@ module Zendesk
         end
       end
 
-      private
+      private ###################################################
 
       def error_message(env)
-        "#{env[:method].to_s.upcase} #{env[:url].to_s}: #{env[:status]}#{error_body(env[:body])}"
+        "#{env[:method].to_s.upcase} #{env[:url]}: #{env[:status]}#{error_body(env[:body])}"
       end
 
       def error_body(body)
         if body.nil?
           nil
-        elsif body["error"]
-          ": #{body['error']}"
+        elsif body.is_a? Hashie::Mash
+          ": #{body["error"].title} #{body['error'].message}"
+        elsif body.is_a? Array
+          ": #{body.join(' ')}"
         elsif body["errors"]
           first = body["error"][0]
           if first.kind_of? Hash
