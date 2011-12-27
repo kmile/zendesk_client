@@ -26,12 +26,11 @@ module Zendesk
         builder.use Faraday::Request::Multipart
         builder.use Faraday::Request::UrlEncoded
         builder.use Zendesk::Response::RaiseHttp4xx
+        builder.use Faraday::Response::Mashify
         case client.format.to_sym
         when :json
-          builder.use Faraday::Response::Mashify
           builder.use Faraday::Response::ParseJson
         when :xml
-          builder.use Faraday::Response::Mashify
           builder.use Faraday::Response::ParseXml
         end
         # builder.use Faraday::Response::Logger
