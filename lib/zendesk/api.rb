@@ -16,8 +16,8 @@ module Zendesk
       @email, @password = email, password
     end
 
-#     def inspect
-#       "#<#{self.class} @account=#{account} @email=#{email} @password=****** @proxy=#{proxy} @cache=#{@cache}>"
-#     end
+    def inspect
+      "#<#{self.class} @account=#{account} @email=#{email} @password=********* @cache=#{@cache || {}} @format=#{format}>"
+    end
   end
 end
