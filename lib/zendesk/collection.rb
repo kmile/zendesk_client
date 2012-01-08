@@ -17,12 +17,13 @@ module Zendesk
       @client   = client
       @resource = resource.to_s.singularize
       @query    = args.last.is_a?(Hash) ? args.pop : {}
+      @query[:path] ||= resource.to_s
 
       case id = args.shift
       when nil
-        @query[:path] = resource.to_s
+        # do nothing
       when Integer
-        @query[:path] = "#{resource}/#{id}"
+        @query[:path] = "#{@query[:path]}/#{id}"
       else
         raise ArgumentError, "argument must be a numeric id."
       end

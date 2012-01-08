@@ -11,7 +11,17 @@ module Zendesk
     class TicketsCollection < Collection
       # TODO: document all the fields
       def initialize(client, *args)
-        super(client, :tickets, *args)
+        query = args.last.is_a?(Hash) ? args.pop : {}
+        id = args.shift
+
+        if view_id = query.delete(:view)
+          raise ArgumentError "cannot specify ticket id and view id in the same query" unless id.nil?
+
+          id = view_id
+          query[:path] = 'rules'
+        end
+        
+        super(client, :tickets, id, query)
       end
 
       def views
