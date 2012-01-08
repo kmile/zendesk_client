@@ -24,11 +24,6 @@ module Zendesk
         super(client, :tickets, id, query)
       end
 
-      def views
-        @query[:path] = "/rules"
-        self
-      end
-
       # TODO: @zendesk.ticket(123).public_comment({ ... })
       # TODO: @zendesk.ticket(123).private_comment({ ... })
     end
